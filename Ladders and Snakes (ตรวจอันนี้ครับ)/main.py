@@ -67,13 +67,13 @@ on_img = images["on"]
 off_img = images["off"]
 random_img = images["random"]
 
-buttons = {}
-
 #ขนาดฟอนต์และสเกลของปุ่มและลูกเต๋าเริ่มต้น
 font_size = 28
 button_scale = 1
 dice_scale = (60,60)
 player_scale = (50, 60)
+
+buttons = {}
 
 #ค่าเริ่มต้นของปุ่ม
 def init_buttons():
@@ -96,16 +96,16 @@ def init_buttons():
         "on_music": button.Button(636, 657, on_img, 1),
         "off_music": button.Button(1012, 657, off_img, 1),
         "on_sound": button.Button(636, 886, on_img, 1),
-        "off_sound": button.Button(1013, 886, off_img, 1),
+        "off_sound": button.Button(1013, 886, off_img, 1)
     }
 
 def resize_screen():
     global screen, buttons, button_scale, dice_scale, font_size, player_scale
     screen = pygame.display.set_mode((x, y))
     update_position_calculations()
+    game.player1.update_scale(player_scale)
+    game.player2.update_scale(player_scale)
     game.update_roll_and_dice(button_scale)
-    game.player1.update_scale(player_scale)  #ปรับขนาดตัวละครของ player1
-    game.player2.update_scale(player_scale)  #ปรับขนาดตัวละครของ player2
     game.player1.position = game.player1.position  #คำนวณตำแหน่งใหม่ของ Player 1
     game.player2.position = game.player2.position  #คำนวณตำแหน่งใหม่ของ Player 2
     #สร้างปุ่มตามขนาดหน้าจอ
@@ -383,15 +383,22 @@ def update_position_calculations():
 
 #คลาสplayer
 class Player:
-    def __init__(self, image, scale):
+    def __init__(self, image_path, scale):
+        self.image_path = image_path  #เก็บเส้นทางของภาพ
+        self.scale = scale  #เก็บขนาดเริ่มต้น
+        self.image = self.load_image(scale)
         self.position = 1
         self.last_checkpoint = 1
         self.skip_turn = False
         self.has_shield = False
-        self.image = pygame.transform.scale(image, scale)
+
+    def load_image(self, scale):
+        image = pygame.image.load(self.image_path).convert_alpha()
+        return pygame.transform.scale(image, scale)
 
     def update_scale(self, scale):
-        self.image = pygame.transform.scale(self.image, scale)
+        self.scale = scale
+        self.image = self.load_image(scale)
 
     def move(self, steps, screen, draw_board, draw_players):
         if self.skip_turn:
@@ -508,8 +515,8 @@ class Player:
 class Game:
     def __init__(self, screen):
         self.screen = screen
-        self.player1 = Player(pygame.image.load("player_01.png"), player_scale)
-        self.player2 = Player(pygame.image.load("player_02.png"), player_scale)
+        self.player1 = Player("player_01.png", player_scale)
+        self.player2 = Player("player_02.png", player_scale)
         self.button_rect = pygame.Rect(10, 10, 120 * button_scale, 50 * button_scale)
         self.dice_value = None
         self.current_player = 1
@@ -639,8 +646,8 @@ class Game:
             self.current_player = 1
 
     def reset_game(self):
-        self.player1 = Player(pygame.image.load("player_01.png"), player_scale)
-        self.player2 = Player(pygame.image.load("player_02.png"), player_scale)
+        self.player1 = Player("player_01.png", player_scale)
+        self.player2 = Player("player_02.png", player_scale)
         self.dice_value = None
         self.current_player = 1
 
