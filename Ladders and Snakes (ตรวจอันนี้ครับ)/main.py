@@ -189,6 +189,12 @@ def draw_game():
     if buttons["pause"].draw(screen):
         pygame.time.delay(100)
         return 'pause'
+    if game.check_winner():
+        bg('End.png')
+        pygame.display.update()
+        pygame.time.delay(2000)
+        draw_home()
+        return 'home'
     return 'game'
 
 def draw_option_home():
@@ -510,6 +516,16 @@ class Game:
         self.current_message = ""
         self.roll_button = button.Button(20, 20, random_img, button_scale)
         self.dice_images = self.load_dice_images()
+        self.winner = False
+
+    def check_winner(self):
+        if self.player1.position >= 204:
+            self.winner = "Player 1 "
+            return True
+        elif self.player2.position >= 204:
+            self.winner = "Player 2 "
+            return True
+        return False
 
     def load_dice_images(self):
         return {
